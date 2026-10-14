@@ -12,14 +12,17 @@
 
 # Usage
 ```lua
-local ap = require "luxa.argparse"
+local AP = require "argparse"
+ap = AP.new()
 
 -- Register Flags
 ap:flag("-f", { desc = "Foo" })
+    -- Giving Descriptions allows for automatic help generation
 	:flag("-x", { desc = "Dash X option" })
 	:flag("-g", { desc = "G flag!" })
     -- Functions automatically get executed the moment the parsing step finds
     -- the flag passed
+    -- they are optional!
 	:flag("--help-foo", { func = function() print "HELP" end, desc = "Fooo" })
 	:flag("-d", {func = function ()
 		ap:debug_flags()
