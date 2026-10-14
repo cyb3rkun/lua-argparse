@@ -22,11 +22,11 @@ function ArgParser.new()
 		desc = "Displays Help Message",
 		func = function()
 			print "Flags: "
-			for k, v in pairs(ArgParser.flags) do
+			for k, v in pairs(self.flags) do
 				print(k, v.desc)
 			end
 			print "Options: "
-			for k, v in pairs(ArgParser.options) do
+			for k, v in pairs(self.options) do
 				print(k, v.desc)
 			end
 		end,
