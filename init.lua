@@ -11,6 +11,16 @@
 ---@field args string[]
 local ArgParser = {}
 
+ArgParser.__index = ArgParser
+function ArgParser.new()
+	local self = setmetatable({}, ArgParser)
+	self.args = {}
+	self.flags = {}
+	self.options = {}
+	self.parsed = { args = {}, flags = {}, options = {} }
+	return self
+end
+
 ---@class Flag
 ---@field func nil | fun(): nil
 ---@field desc string
@@ -23,6 +33,12 @@ ArgParser.args = {}
 ArgParser.flags = {}
 ArgParser.options = {}
 
+ArgParser.parsed = {
+	args = {},
+	flags = {},
+	options = {},
+}
+
 -- TODO add Execution Ordering for the flags, and options, in case user needs
 -- specific order
 -- -@type table<string,string[]>
@@ -30,15 +46,15 @@ ArgParser.options = {}
 
 -- Function to add flags
 ---@param flag_id string
----@param flag Flag
+---@param flag Flag | nil
 ---@return ArgParser
 function ArgParser:flag(flag_id, flag)
 	-- When attempting to add duplicate Flag, throw error
 	if not flag_id then error("Can't set a nil flag!", 2) end
-	flag.desc = flag.desc or "No Description Given"
+	flag.desc = flag and flag.desc or "No Description Given"
 
 	if not self.flags[flag_id] then
-		self.flags[flag_id] = flag
+		self.flags[flag_id] = flag or {}
 		return self
 	end
 
@@ -46,14 +62,14 @@ function ArgParser:flag(flag_id, flag)
 end
 
 ---@param option_id string
----@param option Option
+---@param option Option | nil
 ---@return ArgParser
 function ArgParser:option(option_id, option)
 	-- When attempting to add duplicate Option, throw error
 	if not option_id then error("option id not specified!", 2) end
 
 	if not self.options[option_id] then
-		self.options[option_id] = option
+		self.options[option_id] = option or {}
 		return self
 	end
 
@@ -85,7 +101,7 @@ function ArgParser:run_flag(flag_id)
 	if not flag_id or not self.flags[flag_id] then
 		error(("Flag '%s' does not exist"):format(flag_id), 2)
 	end
-	if self.flags[flag_id] then self.flags[flag_id].func() end
+	if self.flags[flag_id].func then self.flags[flag_id].func() end
 	return ""
 end
 
@@ -94,6 +110,7 @@ function ArgParser:parse_long_opt(Arg)
 	local k, v = Arg:match "(%-%-[A-Za-z]+[A-Za-z0-9-]*)%=(.*)$"
 
 	if k then
+		self.parsed.options[k] = v
 		self:run_opt(k, v)
 		return true
 	end
@@ -104,6 +121,8 @@ function ArgParser:parse_short_opt(Arg)
 	local k, v = Arg:match "(%-[A-Za-z])%=(.*)$"
 
 	if k then
+		-- if v is empty string "" (not nil) should maybe consider removing it?
+		self.parsed.options[k] = v
 		self:run_opt(k, v)
 		return true
 	end
@@ -115,13 +134,18 @@ function ArgParser:parse_flag(Arg)
 	if not flags then return end
 
 	-- Run Associated functions for each flag
-	flags:gsub(".", function(c) self:run_flag("-" .. c) end)
+	flags:gsub(".", function(c)
+		self.parsed.flags["-" .. c] = true
+		self:run_flag("-" .. c)
+	end)
 	return true
 end
+
 function ArgParser:parse_long_flag(Arg)
 	local long_flag = Arg:match "^(%-%-[A-Za-z]+[A-Za-z0-9-]*)$"
 	if not long_flag then return end
 
+	self.parsed.flags[long_flag] = true
 	self:run_flag(long_flag)
 	return true
 end
@@ -140,18 +164,29 @@ ArgParser:flag("-h", {
 	end,
 })
 
-function ArgParser:debug_flags()
-	for k, v in pairs(self.flags) do
-		print(k, v.desc, v.func)
-	end
-	for k, v in pairs(self.options) do
-		print(k, v.desc, v.func)
-	end
-end
+---@param f string
+---@return string | nil
+function ArgParser:gflag(f) return self.parsed.flags[f] end
+---comment
+---@return string[]
+function ArgParser:gflags() return self.parsed.flags end
+
+---@param o string
+---@return string | nil
+function ArgParser:gopt(o) return self.parsed.options[o] end
+---@return table<string, string>
+function ArgParser:gopts() return self.parsed.options end
+
+---@param idx number
+---@return string | nil
+function ArgParser:garg(idx) return self.parsed.args[idx] end
+---@return string[]
+function ArgParser:gargs() return self.parsed.args end
+
 ---@param args string[]
 ---@param return_result boolean
----@return table<string, function> | nil
-function ArgParser:parse(args, return_result)
+---@return ArgParser
+function ArgParser:parse(args)
 	local INDEX = 1
 	while INDEX <= #args do
 		local current = args[INDEX]
@@ -161,11 +196,21 @@ function ArgParser:parse(args, return_result)
 		if self:parse_long_flag(current) then goto continue end
 		if self:parse_flag(current) then goto continue end
 
-		table.insert(self.args, current)
+		-- print("ARG FOUND: ", current)
+		table.insert(self.parsed.args, current)
 
 		::continue::
 		INDEX = INDEX + 1
 	end
+	return self
 end
 
+function ArgParser:debug_flags()
+	for k, v in pairs(self.flags) do
+		print(k, v.desc, v.func)
+	end
+	for k, v in pairs(self.options) do
+		print(k, v.desc, v.func)
+	end
+end
 return ArgParser
