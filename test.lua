@@ -49,13 +49,13 @@ local tests = {
 				:option("--super-long", { desc = "Bar" })
 			ap:option "--ultra-long"
 			local opts = {
-				"-o=boo",
+				"-o=",
 				"--long-o=foo",
 				"--super-long=foo=super=long",
 				"--ultra-long=not-really",
 			}
 			ap:parse(opts)
-			t.assert_eq("boo", ap:gopt "-o")
+			t.assert_eq("", ap:gopt "-o")
 			t.assert_eq("foo", ap:gopt "--long-o")
 			t.assert_eq("foo=super=long", ap:gopt "--super-long")
 			t.assert_eq("not-really", ap:gopt "--ultra-long")
@@ -122,7 +122,7 @@ local tests = {
 	test_flag_stack = {
 		func = function()
 			local ArgParser = require "init"
-			local ap = ArgParser:new()
+			local ap = ArgParser.new()
 			ap:flag("-f", { desc = "Foo" })
 				:flag("-x", { desc = "Dash X option" })
 				:flag("-g", { desc = "G flag!" })
