@@ -92,6 +92,33 @@ local tests = {
 			assert(ap:gflag "-d")
 		end,
 	},
+	test_help_flag = {
+		func = function()
+			local ArgParser = require "init"
+			local ap = ArgParser.new()
+				:flag("-f", { desc = "Foo" })
+				:flag("-x", { desc = "Dash X option" })
+				:flag("-g", { desc = "G flag!" })
+				:flag(
+					"--help-foo",
+					{ func = function() print "HELP" end, desc = "Fooo" }
+				)
+				:flag("-d", {
+					func = function() print "DEBUG" end,
+					desc = "Print registered flags",
+				})
+			local flags = {
+				"-f",
+				"-x",
+				"-g",
+				"--help-foo",
+				"-d",
+				"-h",
+			}
+			ap:parse(flags)
+			assert(ap:gflag "-h")
+		end,
+	},
 	test_flag_stack = {
 		func = function()
 			local ArgParser = require "init"
