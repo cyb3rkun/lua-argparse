@@ -1,7 +1,7 @@
 # A Basic Argument parsing library for lua
     - more descriptions coming later
 
-# Installation with [Lux](https://github.com/LuaLuxa):
+# Installation with [Lux](https://codeberg.org/LuaLuxa):
 ```lua
 {
     "cyb3rkun/lua-argparse",
