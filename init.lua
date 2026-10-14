@@ -183,7 +183,6 @@ function ArgParser:garg(idx) return self.parsed.args[idx] end
 function ArgParser:gargs() return self.parsed.args end
 
 ---@param args string[]
----@param return_result boolean
 ---@return ArgParser
 function ArgParser:parse(args)
 	local INDEX = 1
