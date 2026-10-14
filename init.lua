@@ -18,6 +18,19 @@ function ArgParser.new()
 	self.flags = {}
 	self.options = {}
 	self.parsed = { args = {}, flags = {}, options = {} }
+	self:flag("-h", {
+		desc = "Displays Help Message",
+		func = function()
+			print "Flags: "
+			for k, v in pairs(ArgParser.flags) do
+				print(k, v.desc)
+			end
+			print "Options: "
+			for k, v in pairs(ArgParser.options) do
+				print(k, v.desc)
+			end
+		end,
+	})
 	return self
 end
 
@@ -149,20 +162,6 @@ function ArgParser:parse_long_flag(Arg)
 	self:run_flag(long_flag)
 	return true
 end
-
-ArgParser:flag("-h", {
-	desc = "Displays Help Message",
-	func = function()
-		print "Flags: "
-		for k, v in pairs(ArgParser.flags) do
-			print(k, v.desc)
-		end
-		print "Options: "
-		for k, v in pairs(ArgParser.options) do
-			print(k, v.desc)
-		end
-	end,
-})
 
 ---@param f string
 ---@return string | nil
