@@ -33,5 +33,5 @@ ap:flag("-f", { desc = "Foo" })
 		{ func = function(val) print(val) end, desc = "Long Option" }
 	)
 
-ap:parse(arg, true)
+ap:parse(arg)
 ```
