@@ -24,7 +24,7 @@ function ArgParser.new(appname)
 
 		func = function()
 			print(
-				(appname or arg[0]) .. [[ [Flags -f/-x/-fx] [ARGS] [options] ]]
+				(appname or arg[0]) .. [[ [Flags -f/-x/-fx] [ARGS] [Options -x=xyz --xy-z=zyx] ]]
 			)
 			print "Flags: "
 			for k, v in pairs(self.flags) do
