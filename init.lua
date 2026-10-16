@@ -20,10 +20,12 @@ function ArgParser.new(appname)
 	self.options = {}
 	self.parsed = { args = {}, flags = {}, options = {} }
 	self:flag("-h", {
-	 	desc = "Displays Help Message",
+		desc = "Displays Help Message",
 
 		func = function()
-			print(appname or arg[0] .. [[ [Flags -f/-x/-fx] [ARGS] [options] ]])
+			print(
+				(appname or arg[0]) .. [[ [Flags -f/-x/-fx] [ARGS] [options] ]]
+			)
 			print "Flags: "
 			for k, v in pairs(self.flags) do
 				print(k, v.desc)
