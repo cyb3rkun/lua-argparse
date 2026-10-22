@@ -1,14 +1,14 @@
 ---@type LuxManifest
 return {
-	name = "argparse",
-	namespace = "luxa.argparse",
+	name = "arglex",
+	namespace = "luxa.arglex",
 	license = {
 		spdx = "MIT",
 		files = { "LICENSE" },
 	},
 	lua_modules = {
 		{
-			name = "argparse",
+			name = "arglex",
 			sources = { "init.lua" },
 		},
 	},
